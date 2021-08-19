@@ -10,6 +10,7 @@ class Crawler:
         options.add_argument("headless")
         options.add_argument("window-size=1920x1080")
         options.add_argument("disable-gpu")
+        options.add_argument("log-level=3")
 
         self.retry = retry
         self.driver = webdriver.Chrome(driver, options=options)
@@ -18,7 +19,9 @@ class Crawler:
     def crawl(self, gallery, idx):
         while True:
             try:
-                self.driver.get(f"https://gall.dcinside.com/board/view/?id={gallery}&no={idx}")
+                self.driver.get(
+                    f"https://gall.dcinside.com/board/view/?id={gallery}&no={idx}"
+                )
 
                 try:
                     self.driver.find_element_by_class_name("delet")
@@ -49,7 +52,7 @@ class Crawler:
                 return {
                     "title": title.text,
                     "content": content.text,
-                    "comments": comments
+                    "comments": comments,
                 }
 
             except DeletedPostException:
