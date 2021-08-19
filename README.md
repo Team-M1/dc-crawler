@@ -15,4 +15,4 @@ csv파일은 헤더가 content, label로 설정되어 있고, content에는 수�
 
 ## 세부사항
 [원본 저장소](https://github.com/seunghyukcho/dc-crawler)  
-크롤링이 저작권을 침해하는 지 주의바랍니다. https://www.dcinside.com/robots.txt
+크롤링이 저작권을 침해하는지 주의 바랍니다. https://www.dcinside.com/robots.txt
