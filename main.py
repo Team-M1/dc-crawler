@@ -50,8 +50,8 @@ if __name__ == "__main__":
                     writer.writerow([comment, 0])
                     count += 1
         except (ServerException, DeletedPostException) as e:
-            print(e)
-        time.sleep(0.5)
+            print(args.gallery, post_idx, e)
+        time.sleep(0.873)
 
     file.close()
     print(f"완료, 크롤링한 댓글 수: {count}")
