@@ -1,13 +1,13 @@
 import argparse
-import csv
+import json
 import os
 import time
 from datetime import datetime
 
-from tqdm import trange
+from tqdm import trange, tqdm
 
 from dcinside import Crawler
-from dcinside.exception import *
+from dcinside.exception import DeletedPostException, ServerException
 
 
 parser = argparse.ArgumentParser()
@@ -22,36 +22,56 @@ parser.add_argument(
 )
 
 if __name__ == "__main__":
+    args = parser.parse_args()
+
     t = datetime.now()
     now = f"{t.year % 100}{t.month:02}{t.day:02}-{t.hour:02}{t.minute:02}{t.second:02}"
-    file_name = f"{now}.csv"
+    file_name = f"{args.gallery}_{now}.json"
 
     if not os.path.isdir("data"):
         os.mkdir("data")
 
-    file = open(os.path.join("data", file_name), "w", encoding="utf-8", newline="")
-    writer = csv.writer(file, quoting=csv.QUOTE_MINIMAL)
-    writer.writerow(["content", "label"])
-
-    args = parser.parse_args()
     crawler = Crawler(args.driver, timeout=60, retry=True)
     count = 0
+
+    data = []
 
     for post_idx in trange(args.start_idx, args.end_idx + 1):
         try:
             post = crawler.crawl(args.gallery, post_idx)
             # print(post["title"])
             # print(post["content"])
+            comments = []
             for comment in post["comments"]:
                 comment = comment.rstrip(" - dc App").strip()
                 comment = comment.replace("\n", " ")
-                # print(comment)
-                if 3 <= len(comment) <= 256:
-                    writer.writerow([comment, 0])
-                    count += 1
-        except (ServerException, DeletedPostException) as e:
-            print(args.gallery, post_idx, e)
-        time.sleep(0.873)
+                comments.append(comment)
 
-    file.close()
-    print(f"완료, 크롤링한 댓글 수: {count}")
+            d = {
+                "title": post["title"].strip(),
+                "content": post["content"].strip(),
+                "comments": comments,
+            }
+
+            data.append(d)
+
+        except (ServerException, DeletedPostException) as e:
+            tqdm.write(f"{args.gallery} {post_idx} {e}")
+
+        time.sleep(0.6)
+
+    # 파일 저장
+    total_data = len(data)
+    total_comments = sum(len(d["comments"]) for d in data)
+    json_data = {
+        "gallery": args.gallery,
+        "total_data": total_data,
+        "total_comments": total_comments,
+        "data": data,
+    }
+
+    with open(os.path.join("data", file_name), "w", encoding="utf-8") as file:
+        json.dump(json_data, file, ensure_ascii=False, indent=4)
+        print(f"파일 저장: {os.path.join('data', file_name)}")
+
+    print(f"완료, 크롤링한 글 수: {total_data}, 댓글 수: {total_comments}")
