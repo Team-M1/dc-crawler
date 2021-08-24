@@ -47,11 +47,13 @@ class Crawler:
                     self.driver.execute_script(f"viewComments({i}, 'D')")
                     page_comments = self.driver.find_elements_by_class_name("usertxt")
                     for comment in page_comments:
-                        comments.append(comment.text)
+                        comment = comment.text.rstrip(" - dc App").strip()
+                        comment = comment.replace("\n", " ")
+                        comments.append(comment)
 
                 return {
-                    "title": title.text,
-                    "content": content.text,
+                    "title": title.text.strip(),
+                    "content": content.text.strip(),
                     "comments": comments,
                 }
 

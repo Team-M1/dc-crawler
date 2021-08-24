@@ -41,24 +41,12 @@ if __name__ == "__main__":
             post = crawler.crawl(args.gallery, post_idx)
             # print(post["title"])
             # print(post["content"])
-            comments = []
-            for comment in post["comments"]:
-                comment = comment.rstrip(" - dc App").strip()
-                comment = comment.replace("\n", " ")
-                comments.append(comment)
-
-            d = {
-                "title": post["title"].strip(),
-                "content": post["content"].strip(),
-                "comments": comments,
-            }
-
-            data.append(d)
+            data.append(post)
 
         except (ServerException, DeletedPostException) as e:
             tqdm.write(f"{args.gallery} {post_idx} {e}")
 
-        time.sleep(0.6)
+        time.sleep(0.3)
 
     # 파일 저장
     total_data = len(data)
