@@ -53,7 +53,7 @@ class Crawler:
 
                 return {
                     "title": title.text.strip(),
-                    "content": content.text.strip(),
+                    "contents": content.text.rstrip("- dc official App").strip(),
                     "comments": comments,
                 }
 
